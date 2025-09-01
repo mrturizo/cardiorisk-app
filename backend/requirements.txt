@@ -1,4 +1,3 @@
 flask==2.3.2 # Define la dependencia de Flask, un micro-framework para crear aplicaciones web, fijado en la versión 2.3.2.
 flask-cors==4.0.0 # Especifica la extensión Flask-CORS, necesaria para permitir peticiones web desde otros dominios (CORS), en la versión 4.0.0.
 reportlab==4.0.4 # Requiere la librería ReportLab, utilizada para generar documentos PDF dinámicamente, en la versión 4.0.4.
-numpy==1.24.3 # Indica la necesidad de NumPy, una librería fundamental para cálculos numéricos y manejo de arrays, en la versión 1.24.3.

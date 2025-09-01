@@ -23,15 +23,31 @@ def validate_patient_data(data: Dict) -> Tuple[bool, List[str]]:
             errors.append(f"Falta el parámetro {key}")
             continue
         value = data[key]
-        if not (low <= value <= high):
+        try:
+            numeric = float(value)
+        except (TypeError, ValueError):
+            errors.append(f"{key} no es numérico")
+            continue
+        if not (low <= numeric <= high):
             errors.append(f"{key} fuera de rango ({low}-{high})")
-        elif value in (low, high):
+        elif numeric in (low, high):
             warnings.append(f"{key} en el límite permitido")
+
+    # Campo sexo
+    sexo = data.get("sexo")
+    if sexo is None:
+        errors.append("Falta el parámetro sexo")
+    else:
+        s = str(sexo).lower()
+        if s not in ("hombre", "mujer"):
+            errors.append("sexo debe ser 'hombre' o 'mujer'")
 
     # Campos booleanos obligatorios
     bool_fields = ["fumador", "diabetes", "tratamiento_hipertension"]
     for bf in bool_fields:
         if bf not in data:
             errors.append(f"Falta el parámetro {bf}")
+        elif not isinstance(data[bf], bool):
+            warnings.append(f"{bf} debería ser booleano")
 
     return (len(errors) == 0, errors if errors else warnings)

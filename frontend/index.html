@@ -17,6 +17,18 @@
   <main>
     <form id="risk-form">
       <section class="grid">
+        <h2>Perfiles predeterminados</h2>
+        <label>Seleccionar perfil
+          <select id="profile-select">
+            <option value="">— Seleccione —</option>
+            <option value="bajo_h40">Bajo riesgo — Hombre 40</option>
+            <option value="moderado_m55">Moderado — Mujer 55</option>
+            <option value="alto_h65_fumador">Alto — Hombre 65 Fumador</option>
+            <option value="muy_alto_m70_dm_htn">Muy alto — Mujer 70 DM + HTA</option>
+          </select>
+        </label>
+      </section>
+      <section class="grid">
         <h2>Datos personales</h2>
         <label>Edad (20-79)
           <input type="number" name="edad" required min="20" max="79">
@@ -39,6 +51,12 @@
         <h2>Factores de riesgo</h2>
         <label><input type="checkbox" name="fumador"> Fumador</label>
         <label><input type="checkbox" name="diabetes"> Diabetes</label>
+        <label>Región SCORE
+          <select name="region_riesgo">
+            <option value="bajo">Riesgo bajo</option>
+            <option value="alto">Riesgo alto</option>
+          </select>
+        </label>
       </section>
 
       <section class="grid">

@@ -15,5 +15,20 @@ function generateCharts(result){
       backgroundColor:["#2E7D32","#F9A825","#C62828"]
     }]
   };
-  new Chart(ctx,{type:"bar",data});
+  new Chart(ctx,{
+    type:"bar",
+    data,
+    options:{
+      responsive:true,
+      scales:{
+        y:{
+          beginAtZero:true,
+          suggestedMax: 40,
+          ticks:{
+            callback:(v)=>`${v}%`
+          }
+        }
+      }
+    }
+  });
 }

@@ -1,10 +1,11 @@
 /* Lógica principal en JavaScript ES6+ */
-const API_URL = "http://localhost:5000";
+const API_URL = "http://127.0.0.1:5000";
 const form = document.getElementById("risk-form");
 const resultsSection = document.getElementById("results");
 const chartsDiv = document.getElementById("charts");
 const interpretationDiv = document.getElementById("interpretation");
 const btnPdf = document.getElementById("btn-pdf");
+const profileSelect = document.getElementById("profile-select");
 let currentSessionId = null;
 
 form.addEventListener("submit", async (e) => {
@@ -30,14 +31,19 @@ form.addEventListener("submit", async (e) => {
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify(data)
     });
+    if (!res.ok){
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status} ${res.statusText}${text?` - ${text}`:""}`);
+    }
     const json = await res.json();
-    if (json.status !== "ok") throw new Error(json.errors.join(", "));
+    if (json.status !== "ok") throw new Error((json.errors||[]).join(", ")||"Error desconocido");
 
     currentSessionId = json.session_id;
     displayResults(json.result);
     btnPdf.disabled = false;
   } catch(err){
-    alert("Error: " + err.message);
+    console.error("Fallo en cálculo:", err);
+    alert("Error: " + (err?.message||err));
   }
 });
 
@@ -81,3 +87,53 @@ function displayResults(result){
 
   generateCharts(result);
 }
+
+// Perfiles predeterminados
+const PRESETS = {
+  bajo_h40: {
+    edad: 40, sexo: "hombre", peso: 78, altura: 175,
+    fumador: false, diabetes: false,
+    colesterol_total: 180, hdl: 55, ldl: 110,
+    presion_sistolica: 118, presion_diastolica: 76,
+    tratamiento_hipertension: false, estatinas: false
+  },
+  moderado_m55: {
+    edad: 55, sexo: "mujer", peso: 68, altura: 162,
+    fumador: false, diabetes: false,
+    colesterol_total: 220, hdl: 50, ldl: 140,
+    presion_sistolica: 132, presion_diastolica: 84,
+    tratamiento_hipertension: false, estatinas: false
+  },
+  alto_h65_fumador: {
+    edad: 65, sexo: "hombre", peso: 85, altura: 172,
+    fumador: true, diabetes: false,
+    colesterol_total: 240, hdl: 42, ldl: 160,
+    presion_sistolica: 148, presion_diastolica: 90,
+    tratamiento_hipertension: true, estatinas: false
+  },
+  muy_alto_m70_dm_htn: {
+    edad: 70, sexo: "mujer", peso: 70, altura: 160,
+    fumador: false, diabetes: true,
+    colesterol_total: 260, hdl: 40, ldl: 170,
+    presion_sistolica: 160, presion_diastolica: 96,
+    tratamiento_hipertension: true, estatinas: true
+  }
+};
+
+profileSelect?.addEventListener("change", () => {
+  const key = profileSelect.value;
+  if (!key || !PRESETS[key]) return;
+  const data = PRESETS[key];
+  // Rellenar inputs
+  for (const [k, v] of Object.entries(data)){
+    if (!(k in form.elements)) continue;
+    const el = form.elements[k];
+    if (el.type === "checkbox"){
+      el.checked = Boolean(v);
+    } else if (el.tagName === "SELECT"){
+      el.value = String(v);
+    } else {
+      el.value = String(v);
+    }
+  }
+});
