@@ -71,19 +71,38 @@ function validateForm(){
 function displayResults(result){
   resultsSection.classList.remove("hidden");
 
-  // Interpretación textual
-  const overall = Math.max(
-    result.framingham.percent,
-    result.score.percent,
-    result.acc_aha.percent
-  );
-  let riskCategory = "bajo";
-  if (overall >=20) riskCategory="muy alto";
-  else if (overall >=10) riskCategory="alto";
-  else if (overall >=5) riskCategory="moderado";
+  // Interpretación textual (consenso categórico entre escalas)
+  const cats = [
+    String(result.framingham.category||""),
+    String(result.score.category||""),
+    String(result.acc_aha.category||"")
+  ];
 
+  const levelOf = (c) => {
+    const s = c.toLowerCase();
+    if (s.includes("muy")) return 4;         // muy alto
+    if (s.includes("alto")) return 3;         // alto
+    if (s.includes("intermedio")) return 2;  // intermedio (PCE)
+    if (s.includes("moderado") || s.includes("limítrofe") || s.includes("limi")) return 1; // moderado/limítrofe
+    return 0;                                  // bajo
+  };
+  const levels = cats.map(levelOf).sort((a,b)=>a-b);
+  const medianLevel = levels[Math.floor(levels.length/2)];
+  const labelMap = {
+    0: "bajo",
+    1: "moderado/limítrofe",
+    2: "intermedio",
+    3: "alto",
+    4: "muy alto"
+  };
+  const globalLabel = labelMap[medianLevel];
+  const dispersion = levels[levels.length-1] - levels[0];
+
+  const catsPretty = `Framingham: ${cats[0]} · SCORE2: ${cats[1]} · ACC/AHA: ${cats[2]}`;
+  const note = dispersion >= 2 ? " (discordancia alta entre escalas)" : "";
   interpretationDiv.innerHTML =
-    `<p>Riesgo global: <strong>${overall}%</strong> (${riskCategory})</p>`;
+    `<p>Riesgo global (consenso): <strong>${globalLabel}</strong>${note}</p>
+     <p style="margin-top:0.3rem;color:#555">Categorías por escala → ${catsPretty}</p>`;
 
   generateCharts(result);
 }
@@ -113,9 +132,9 @@ const PRESETS = {
   },
   muy_alto_m70_dm_htn: {
     edad: 70, sexo: "mujer", peso: 70, altura: 160,
-    fumador: false, diabetes: true,
-    colesterol_total: 260, hdl: 40, ldl: 170,
-    presion_sistolica: 160, presion_diastolica: 96,
+    fumador: true, diabetes: true,
+    colesterol_total: 300, hdl: 35, ldl: 200,
+    presion_sistolica: 180, presion_diastolica: 100,
     tratamiento_hipertension: true, estatinas: true
   }
 };

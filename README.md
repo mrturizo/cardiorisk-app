@@ -1,56 +1,60 @@
-# Calculadora de Riesgo Cardiovascular
+# CardioRisk – Cálculo de riesgo cardiovascular (Framingham, SCORE2, ACC/AHA)
 
-Aplicación web educativa que calcula los principales **scores de riesgo cardiovascular** (Framingham, SCORE y ACC/AHA) a 10 años.
+Este proyecto implementa tres escalas clínicas de riesgo a 10 años:
+- Framingham General CVD (D'Agostino 2008)
+- SCORE2 (ESC 2021)
+- ACC/AHA Pooled Cohort Equations – PCE (2013)
 
-**Atención:**
-**Esta versión está intencionalmente hecha con fallos. No se pretende que sea funcional, pero sirve de punto de partida para construir una aplicación funcional en unos pocos pasos** 
+## Estado de precisión
+- Framingham: coeficientes oficiales embebidos (alta precisión)
+- SCORE2: 
+  - Prioriza tablas oficiales si está `backend/score2_risk_tables.json` (lookup exacto)
+  - Si no hay tablas, usa un modelo continuo con estructura de Cox (fallback mejorado)
+- ACC/AHA (PCE): implementación directa para población blanca con todas las interacciones
 
-## Requisitos
+## Entradas comunes
+- edad (años), sexo ("hombre"|"mujer"), presion_sistolica (mmHg)
+- colesterol_total (mg/dL), hdl (mg/dL)
+- tratamiento_hipertension (bool), fumador (bool)
+- diabetes (bool, solo PCE)
+- region_riesgo (SCORE2): "bajo"|"moderado"|"alto"|"muy_alto"
+- no_hdl (opcional): mg/dL; si no se provee, se usa TC − HDL (convertido a mmol/L cuando aplica)
 
-| Software | Versión mínima |
-|----------|----------------|
-| Python   | 3.8 |
-| Node.js  | 18 (solo para servir archivos estáticos opcional) |
-| Navegador| Chrome 90 / Firefox 88 / Edge 90 |
+## Categorías de riesgo por escala
+- Framingham (10a CVD):
+  - <10% bajo; 10–20% intermedio; >20% alto
+- SCORE2 (ESC 2021):
+  - 40–49 años: <2.5% bajo‑mod; 2.5–<7.5% alto; ≥7.5% muy alto
+  - 50–69 años: <5% bajo‑mod; 5–<10% alto; ≥10% muy alto
+  - 70–89 años: <7.5% bajo‑mod; 7.5–<15% alto; ≥15% muy alto
+- ACC/AHA (ASCVD 10a):
+  - <5% bajo; 5–7.5% limítrofe; 7.5–20% intermedio; ≥20% alto
 
-## Instalación en Windows 10/11 con VS Code
+## Uso en código
+Las funciones de alto nivel están en `backend/calculators.py`:
 
-1. **Clona o descarga** este repositorio  
-git clone <URL> calculadora-riesgo
-cd calculadora-riesgo
+```python
+from backend.calculators import framingham_risk, score2_risk, acc_aha_risk
 
-text
+patient = {
+  "edad": 55, "sexo": "hombre",
+  "colesterol_total": 200, "hdl": 45,
+  "presion_sistolica": 140, "tratamiento_hipertension": False,
+  "fumador": True, "diabetes": False, "region_riesgo": "moderado"
+}
 
-2. **Backend**  
-cd backend
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-python app.py
+print(framingham_risk(patient))  # {"percent": ..., "category": "..."}
+print(score2_risk(patient))      # prioriza tablas si existen; si no, fallback continuo
+print(acc_aha_risk(patient))     # PCE población blanca
+```
 
-El servidor Flask escuchará en `http://localhost:5000`.
+## Cómo obtener máxima precisión en SCORE2
+1. Rellenar `backend/score2_risk_tables.json` con las tablas oficiales (región/sexo/edad/PAS/no‑HDL/fumador) de la ESC 2021.
+2. La ruta de tablas se activará automáticamente y devolverá los mismos % de la tabla.
 
-3. **Frontend**  
-Abre `frontend/index.html` directamente en el navegador o instala la extensión
-**Live Server** de VS Code y pulsa _Go Live_ para servirlo.
+## Reglas y validación
+Ver `rules/IMPLEMENTACION_Y_VALIDACION.md` para detalles de entradas, clamps, fórmulas y validación recomendada.
 
-4. **Uso**  
-1. Completa el formulario con los datos del paciente  
-2. Pulsa **Calcular Riesgo** para ver los resultados con gráficos  
-3. Pulsa **Generar Reporte** para descargar un PDF profesional  
-
-5. **Limpieza automática**  
-Los datos en memoria se eliminan después de 60 minutos.
-
-## Seguridad y Privacidad
-
-- Los datos no se guardan en bases de datos ni se transmiten a terceros.  
-- Todo cálculo se realiza en memoria y se descarta tras 1 h.
-
-## Licencia
-
-MIT © 2025
-
-
-> **Disclaimer**  
-> Esta calculadora es una herramienta de apoyo educativo. Los resultados **no** sustituyen el criterio médico profesional. Consulte siempre con un profesional de la salud para decisiones médicas.
+## Notas
+- Unidades: mantener mg/dL para lípidos en las entradas. SCORE2 convierte internamente a mmol/L cuando corresponde.
+- Límites de salida: Framingham 0–100%, SCORE2 0–50%, ACC/AHA 0–40%.

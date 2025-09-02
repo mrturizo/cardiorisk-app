@@ -4,15 +4,162 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Calculadora de Riesgo Cardiovascular</title>
-  <link rel="stylesheet" href="styles.css">
+
+  <!-- Fuente moderna -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
   <script defer src="script.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script defer src="assets/charts.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f9fc;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0066cc, #3399ff);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .descripcion {
+      max-width: 900px;
+      margin: 1.5rem auto;
+      padding: 1rem 1.5rem;
+      background: #eaf4fc;
+      border-left: 5px solid #3399ff;
+      border-radius: 8px;
+      font-size: 1rem;
+      text-align: center;
+      color: #004c80;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      color: #005c99;
+      margin-bottom: 0.8rem;
+      border-left: 4px solid #3399ff;
+      padding-left: 0.5rem;
+    }
+
+    form section {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin: 0.6rem 0;
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.2rem;
+      border: 1px solid #ccd6dd;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    input:focus, select:focus {
+      border-color: #3399ff;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(51,153,255,0.2);
+    }
+
+    .buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    button {
+      background: #3399ff;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background: #007acc;
+      transform: translateY(-2px);
+    }
+
+    button:disabled {
+      background: #b3d9ff;
+      cursor: not-allowed;
+    }
+
+    #results {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      border-radius: 12px;
+      background: #f0f7fb;
+      border: 1px solid #d6e9f5;
+    }
+
+    #charts canvas {
+      max-width: 700px;  /* más ancho */
+      max-height: 500px; /* más alto */
+      margin: 1rem auto;
+      display: block;
+      background: #fff;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    footer p {
+      margin: 0;
+    }
+  </style>
 </head>
 <body>
   <header>
     <h1>Calculadora de Riesgo&nbsp;Cardiovascular</h1>
   </header>
+
+  <div class="descripcion">
+    Esta herramienta educativa permite estimar el <strong>riesgo de enfermedad cardiovascular</strong> 
+    en función de datos clínicos y factores de riesgo. Los resultados ayudan a la prevención 
+    y orientación en salud, pero <u>no sustituyen la valoración médica profesional</u>.
+  </div>
 
   <main>
     <form id="risk-form">
@@ -28,6 +175,7 @@
           </select>
         </label>
       </section>
+
       <section class="grid">
         <h2>Datos personales</h2>
         <label>Edad (20-79)
@@ -101,5 +249,42 @@
   <footer>
     <p>Esta calculadora es una herramienta de apoyo educativo. No sustituye el criterio médico profesional.</p>
   </footer>
+
+  <script>
+    // Ejemplo de gráfico con estilo más moderno y tamaño aumentado
+    const ctx = document.createElement('canvas');
+    document.getElementById('charts').appendChild(ctx);
+
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Bajo', 'Moderado', 'Alto'],
+        datasets: [{
+          data: [50, 30, 20], // ejemplo
+          backgroundColor: ['#4dabf7', '#ffd43b', '#ff6b6b'],
+          borderColor: '#fff',
+          borderWidth: 2,
+          hoverOffset: 10
+        }]
+      },
+      options: {
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: {
+                size: 16,
+                weight: '600'
+              }
+            }
+          }
+        },
+        animation: {
+          animateScale: true,
+          animateRotate: true
+        }
+      }
+    });
+  </script>
 </body>
 </html>
