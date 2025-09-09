@@ -208,21 +208,23 @@ ACC_AHA_WHITE_M = {
 }
 
 ACC_AHA_WHITE_F = {
+    # Coeficientes oficiales PCE (Goff 2013) – mujeres blancas
+    # Fuente: suplemento de Circulation 2013
     "S0": 0.9665,
-    "meanXB": 61.18,  # Corregido para ser positivo como en hombres
-    # principales
-    "ln_age": 12.344,  # Corregido para ser positivo como en hombres
+    "meanXB": -29.18,
+    # términos principales
+    "ln_age": -29.799,
     "ln_age2": 4.884,
-    "ln_tc": 11.853,  # Ajustado para ser similar a hombres
-    "ln_hdl": -7.990,  # Ajustado para ser similar a hombres
-    "ln_sbp_tr": 1.797,  # Ajustado para ser similar a hombres
-    "ln_sbp_ut": 1.764,  # Ajustado para ser similar a hombres
-    "smoker": 7.837,  # Corregido para ser positivo como en hombres
-    "diabetes": 0.658,  # Ajustado para ser similar a hombres
+    "ln_tc": 13.540,
+    "ln_hdl": -13.578,
+    "ln_sbp_tr": 2.019,
+    "ln_sbp_ut": 1.957,
+    "smoker": 7.574,
+    "diabetes": 0.661,
     # interacciones con ln(edad)
-    "ln_age_ln_tc": -2.664,  # Ajustado para ser similar a hombres
-    "ln_age_ln_hdl": 1.769,  # Ajustado para ser similar a hombres
-    "ln_age_smoker": -1.795,  # Ajustado para ser similar a hombres
+    "ln_age_ln_tc": -3.114,
+    "ln_age_ln_hdl": 3.149,
+    "ln_age_smoker": -1.665,
 }
 
 
@@ -275,7 +277,8 @@ def acc_aha_equation(patient: Dict) -> float:
 
     # Conversión a riesgo 10 años
     risk = 1 - (p["S0"] ** math.exp(L - p["meanXB"]))
-    risk_pct = max(0.0, min(risk * 100.0, 40.0))
+    # Sin tope artificial de 40%; limitar a [0, 100]
+    risk_pct = max(0.0, min(risk * 100.0, 100.0))
     return round(risk_pct, 1)
 
 

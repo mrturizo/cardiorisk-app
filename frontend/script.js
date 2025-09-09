@@ -118,9 +118,10 @@ const PRESETS = {
   },
   moderado_m55: {
     edad: 55, sexo: "mujer", peso: 68, altura: 162,
-    fumador: false, diabetes: false,
+    fumador: false, diabetes: true,
+    region_riesgo: "bajo",
     colesterol_total: 220, hdl: 50, ldl: 140,
-    presion_sistolica: 132, presion_diastolica: 84,
+    presion_sistolica: 140, presion_diastolica: 90,
     tratamiento_hipertension: false, estatinas: false
   },
   alto_h65_fumador: {
